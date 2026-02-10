@@ -3,12 +3,31 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <algorithm>
 #include <set>
 #include "card.h"
 
 using namespace std;
 
-int main(int argv, char** argc){
+card convertStringToCard(string s) { // because ace, jack, queen, and king are not numbers
+  int num;
+  if(isdigit(s[1])) num = stoi(string{s[1]});
+
+  switch(s[1]) {
+    case 'a': num = 1;
+    case 'j': num = 11;
+    case 'q': num = 12;
+    case 'k': num = 13;
+  }
+  
+  return card(s[0], num);
+}
+
+void game(set<card>& player1, set<card>& player2) {
+  //implement logic
+}
+
+int main(int argv, char** argc) {
   if(argv < 3){
     cout << "Please provide 2 file names" << endl;
     return 1;
@@ -24,17 +43,21 @@ int main(int argv, char** argc){
   }
 
   //Read each file
-  while (getline (cardFile1, line) && (line.length() > 0)){
-
+  set<card> player1;
+  while (getline (cardFile1, line) && (line.length() > 0)) {
+    line.erase(remove(line.begin(), line.end(), ' '), line.end());
+    player1.insert(convertStringToCard(line));
   }
   cardFile1.close();
 
-
-  while (getline (cardFile2, line) && (line.length() > 0)){
-
+  set<card> player2;
+  while (getline (cardFile2, line) && (line.length() > 0)) {
+    line.erase(remove(line.begin(), line.end(), ' '), line.end());
+    player2.insert(convertStringToCard(line));
   }
   cardFile2.close();
   
-  
+  game(player1, player2);
+
   return 0;
 }
