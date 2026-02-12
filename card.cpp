@@ -25,11 +25,15 @@ bool card::operator==(const card& rhs) const {
 }
 
 ostream& operator<<(ostream& out, const card& obj) {
-    string x = to_string(obj.num);
-    if(x == "1") x = "a";
-    if(x == "11") x = "j";
-    if(x == "12") x = "q";
-    if(x == "13") x = "k";
+    string x = "";
+    switch(obj.num) {
+        case 1: x = "a"; break;
+        case 11: x = "j"; break;
+        case 12: x = "q"; break;
+        case 13: x = "k"; break;
+        default: x = to_string(obj.num);
+    }
+
 
     out << obj.suit << " " << x << endl;
     return out;
