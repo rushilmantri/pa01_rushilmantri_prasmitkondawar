@@ -1,14 +1,27 @@
 // This file should implement the game using a custom implementation of a BST (based on your earlier BST implementation)
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <string>
-#include "card.h"
 #include "card_list.h"
-//Do not include set in this file
 
 using namespace std;
 
-int main(int argv, char** argc){
+int getNum(string& s) { 
+  if(!isdigit(s[1])) {
+    switch(s[1]) {
+      case 'a': return 1;
+      case 'j': return 11;
+      case 'q': return 12;
+      case 'k': return 13;
+    }
+  }
+
+  s.erase(0, 1);
+  return stoi(s);
+}
+
+int main(int argv, char** argc) {
   if(argv < 3){
     cout << "Please provide 2 file names" << endl;
     return 1;
@@ -24,17 +37,19 @@ int main(int argv, char** argc){
   }
 
   //Read each file
-  while (getline (cardFile1, line) && (line.length() > 0)){
-
+  CardBST player1;
+  while (getline (cardFile1, line) && (line.length() > 0)) {
+    line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+    player1.insert(line[0], getNum(line));
   }
   cardFile1.close();
 
-
+  CardBST player2;
   while (getline (cardFile2, line) && (line.length() > 0)){
-
+    line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+    player2.insert(line[0], getNum(line));
   }
   cardFile2.close();
-  
   
   return 0;
 }

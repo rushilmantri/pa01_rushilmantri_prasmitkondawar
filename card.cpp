@@ -16,7 +16,7 @@ int card::suitToRank() const {
 }
 
 bool card::operator<(const card& rhs) const {
-    if(this->suitToRank() != rhs.suitToRank()) return this->suitToRank() < rhs.suitToRank();
+    if(this->suit != rhs.suit) return this->suitToRank() < rhs.suitToRank();
     return this->num < rhs.num;
 }
 
@@ -33,7 +33,6 @@ ostream& operator<<(ostream& out, const card& obj) {
         case 13: x = "k"; break;
         default: x = to_string(obj.num);
     }
-
 
     out << obj.suit << " " << x << endl;
     return out;
