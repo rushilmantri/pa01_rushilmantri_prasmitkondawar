@@ -164,22 +164,25 @@ bool CardBST::insert(Card* toIns, Card* root) {
     else return false;
 }
 
-bool CardBST::contains(char s, int n) const {
-    return contains(s, n, this->root);
-}
-
-bool CardBST::contains(char s, int n, Card* root) const {
-    if(!root) return false;
+CardBST::Card* CardBST::findNode(char s, int n, Card* root) const {
+    if(!root) return nullptr;
 
     Card target(s, n);
 
-    if(target == *root) return true;
-    if(target < *root) return contains(s, n, root->left);
-    else return contains(s, n, root->right);
+    if(target == *root) return root;
+    if(target < *root) return findNode(s, n, root->left);
+    else return findNode(s, n, root->right);
 }
 
-bool remove(char s, int n) {
-    //implement this
+bool CardBST::contains(char s, int n) const {
+    return findNode(s, n, this->root) != nullptr;
+}
+
+bool CardBST::remove(char s, int n) {
+    if(!contains(s, n)) return false;
+
+    Card* target = findNode(s, n, this->root);
+
 }
 
 CardBST::iterator CardBST::begin() {

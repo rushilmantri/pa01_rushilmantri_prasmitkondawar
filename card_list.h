@@ -25,7 +25,7 @@ class CardBST {
         Card* root;
 
         //private helpers
-        bool contains(char s, int num, Card* root) const;
+        Card* findNode(char s, int n, Card* root) const;
         bool insert(Card* toIns, Card* root); 
         void clear(Card* root);
 
@@ -34,7 +34,7 @@ class CardBST {
         ~CardBST();
         bool insert(char s, int n);
         bool remove(char s, int n);
-        bool contains(char s, int num) const;
+        bool contains(char s, int n) const;
         friend ostream& operator<<(ostream& out, const CardBST::Card& obj);
 
         class iterator {
