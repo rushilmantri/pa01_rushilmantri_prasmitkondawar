@@ -28,13 +28,14 @@ class CardBST {
         Card* findNode(char s, int n, Card* root) const;
         bool insert(Card* toIns, Card* root); 
         void clear(Card* root);
-
     public:
         CardBST();
         ~CardBST();
         bool insert(char s, int n);
         bool remove(char s, int n);
         bool contains(char s, int n) const;
+        void printInOrder();
+        void playGame(CardBST& alice, CardBST& bob);
         friend ostream& operator<<(ostream& out, const CardBST::Card& obj);
 
         class iterator {
@@ -43,11 +44,13 @@ class CardBST {
                 CardBST* tree;
                 Card* successor(Card* node);
                 Card* predecessor(Card* node);
+                friend class CardBST;
             public:
                 iterator(Card* c, CardBST* t): curr(c), tree(t) {}
                 iterator& operator++();
                 iterator& operator--();
                 bool operator==(const iterator& rhs) const;
+                bool operator!=(const iterator& rhs) const;
                 const Card& operator*() const;
         };
 

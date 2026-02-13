@@ -112,6 +112,10 @@ bool CardBST::iterator::operator==(const iterator& rhs) const {
     return this->curr == rhs.curr;
 }
 
+bool CardBST::iterator::operator!=(const iterator& rhs) const {
+    return this->curr != rhs.curr;
+}
+
 const CardBST::Card& CardBST::iterator::operator*() const {
     return *curr;
 }
@@ -182,7 +186,70 @@ bool CardBST::remove(char s, int n) {
     if(!contains(s, n)) return false;
 
     Card* target = findNode(s, n, this->root);
+    if(!target->left && !target->right) {
+        if(target == this->root) {
+            this->root = nullptr;
+            delete target;
+        }
+        else if(target == target->parent->left) {
+            target->parent->left = nullptr;
+            delete target;
+        }
+        else {
+            target->parent->right = nullptr;
+            delete target;
+        }
+    }
+    else if(!target->left || !target->right) {
+        Card* child = target->left ? target->left : target->right;
+        if(target == this->root) {
+            this->root = child;
+            delete target;
+        }
+        else if(target == target->parent->left) {
+            target->parent->left = child;
+            delete target;
+        }
+        else {
+            target->parent->right = child;
+            delete target;
+        }
+        child->parent = target->parent;
+    }
+    else {
+        iterator it(target, this);
+        Card* succ = it.successor(target);
+        target->suit = succ->suit;
+        target->num = succ->num;
+        
+        if(!succ->left && !succ->right) {
+            if(succ == succ->parent->left) {
+                succ->parent->left = nullptr;
+            }
+            else {
+                succ->parent->right = nullptr;
+            }
+        }
+        else {
+            Card* child = succ->left ? succ->left : succ->right;
+            if(succ == succ->parent->left) {
+                succ->parent->left = child;
+            }
+            else {
+                succ->parent->right = child;
+            }
+            child->parent = succ->parent;
+        }
 
+        delete succ;
+    }
+    return true;
+}
+
+void CardBST::printInOrder() {
+    for(iterator it = CardBST::begin(); it != CardBST::end(); ++it) {
+        cout << *it;
+    }
 }
 
 CardBST::iterator CardBST::begin() {
@@ -205,4 +272,52 @@ CardBST::iterator CardBST::end() {
 
 CardBST::iterator CardBST::rend() {
     return iterator(nullptr, this);
+}
+
+void playGame(CardBST& alice, CardBST& bob) {
+    bool game = true;
+    auto itAlice = alice.begin();
+    auto itBob = bob.rbegin();
+    bool aliceTurn = true;
+
+    while(game) {
+        if(aliceTurn) {
+            if(itAlice != alice.end()) {
+                auto cardAlice = *itAlice;
+                if(bob.contains(cardAlice.suit, cardAlice.num)) {
+                    cout << "Alice picked matching card " << cardAlice;
+                    bob.remove(cardAlice.suit, cardAlice.num);
+                    alice.remove(cardAlice.suit, cardAlice.num);
+                    itAlice = alice.begin();
+                    aliceTurn = false;
+                }
+                else ++itAlice;
+            }
+            else game = false;
+        }
+        else {
+            if(itBob != bob.rend()) {
+                auto cardBob = *itBob;
+                if(alice.contains(cardBob.suit, cardBob.num)) {
+                    cout << "Bob picked matching card " << cardBob;
+                    alice.remove(cardBob.suit, cardBob.num);
+                    bob.remove(cardBob.suit, cardBob.num);
+                    itBob = bob.rbegin();
+                    aliceTurn = true;
+                }
+                else ++itBob;
+            }
+            else game = false;
+        }
+    }
+
+    cout << "Alice's cards: " << endl;
+    for(auto it = alice.begin(); it != alice.end(); ++it) {
+        cout << *it;
+    }
+
+    cout << "Bob's cards: " << endl;
+    for(auto it = bob.begin(); it != bob.end(); ++it) {
+        cout << *it;
+    }
 }
