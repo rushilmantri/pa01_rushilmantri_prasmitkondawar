@@ -42,6 +42,80 @@ ostream& operator<<(ostream& out, const CardBST::Card& obj) {
     return out;
 }
 
+// ITERATOR FUNCTIONS
+
+CardBST::Card* CardBST::iterator::successor(Card* node) {
+    if(!node) return nullptr;
+    if(node->right) {
+        Card* p = node->right;
+        while(p && p->left) {
+            p = p->left;
+        }
+        return p;
+    }
+
+    Card* p = node->parent;
+    while(p && node == p->right) {
+        node = p;
+        p = p->parent;
+    }
+    return p;
+}
+
+CardBST::Card* CardBST::iterator::predecessor(Card* node) {
+    if(!node) return nullptr;
+    if(node->left) {
+        Card* p = node->left;
+        while(p && p->right) {
+            p = p->right;
+        }
+        return p;
+    }
+
+    Card* p = node->parent;
+    while(p && node == p->left) {
+        node = p;
+        p = p->parent;
+    }
+    return p;
+}
+
+CardBST::iterator& CardBST::iterator::operator--() {
+    if(!this->curr) {
+        Card* node = tree->root;
+        if(node) {
+            while(node->right) {
+                node = node->right;
+            }
+        }
+        this->curr = node;
+    }
+    else this->curr = predecessor(this->curr);
+    return *this;
+}
+
+CardBST::iterator& CardBST::iterator::operator++() {
+    if(!this->curr) {
+        Card* node = tree->root;
+        if(node) {
+            while(node->left) {
+                node = node->left;
+            }
+        }
+        this->curr = node;
+    }
+    else this->curr = successor(this->curr);
+    return *this;
+}
+
+bool CardBST::iterator::operator==(const iterator& rhs) const {
+    return this->curr == rhs.curr;
+}
+
+const CardBST::Card& CardBST::iterator::operator*() const {
+    return *curr;
+}
+
 // CARD BST FUNCTIONS
 
 CardBST::CardBST() {
@@ -106,4 +180,26 @@ bool CardBST::contains(char s, int n, Card* root) const {
 
 bool remove(char s, int n) {
     //implement this
+}
+
+CardBST::iterator CardBST::begin() {
+    Card* node = this->root;
+    if(!node) return iterator(nullptr, this);
+    while(node->left) node = node->left;
+    return iterator(node, this);
+}
+
+CardBST::iterator CardBST::rbegin() {
+    Card* node = this->root;
+    if(!node) return iterator(nullptr, this);
+    while(node->right) node = node->right;
+    return iterator(node, this);
+}
+
+CardBST::iterator CardBST::end() {
+    return iterator(nullptr, this);
+}
+
+CardBST::iterator CardBST::rend() {
+    return iterator(nullptr, this);
 }

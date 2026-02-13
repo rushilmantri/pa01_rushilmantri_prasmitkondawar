@@ -37,6 +37,24 @@ class CardBST {
         bool contains(char s, int num) const;
         friend ostream& operator<<(ostream& out, const CardBST::Card& obj);
 
+        class iterator {
+            private:
+                Card* curr;
+                CardBST* tree;
+                Card* successor(Card* node);
+                Card* predecessor(Card* node);
+            public:
+                iterator(Card* c, CardBST* t): curr(c), tree(t) {}
+                iterator& operator++();
+                iterator& operator--();
+                bool operator==(const iterator& rhs) const;
+                const Card& operator*() const;
+        };
+
+        iterator begin();
+        iterator rbegin();
+        iterator end();
+        iterator rend();
 };
 
 #endif
