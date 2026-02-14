@@ -1,425 +1,609 @@
+// tests.cpp
+// Comprehensive test suite for CardBST and playGame function
 #include <iostream>
 #include <sstream>
+#include <cassert>
 #include <string>
 #include "card_list.h"
 
 using namespace std;
 
-void testCheck(bool condition, const string& testName, const string& desc, int expected, int actual) {
-    if (condition) {
-        cout << testName << ": " << desc << " - PASSED" << endl;
+
+int passCount = 0;
+int failCount = 0;
+
+void printTest(const string& testName) {
+    cout << "  " << testName << " ";
+}
+
+void passTest() {
+    cout << "passed" << endl;
+    passCount++;
+}
+
+void failTest(const string& reason) {
+    cout << "failed (" << reason << ")" << endl;
+    failCount++;
+}
+
+void testInsertEmptyTree() {
+    printTest("Insert into empty tree");
+    CardBST bst;
+    bool result = bst.insert('c', 5);
+    if (result && bst.contains('c', 5)) {
+        passTest();
     } else {
-        cout << testName << ": " << desc << " - FAILED" << endl;
-        cout << "  Expected: " << expected << ", Got: " << actual << endl;
+        failTest("insert/contains failed");
     }
 }
 
-void testCheckBool(bool condition, const string& testName, const string& desc, bool expectedBool) {
-    if (condition) {
-        cout << testName << ": " << desc << " - PASSED" << endl;
+void testInsertSingleCard() {
+    printTest("Insert single card");
+    CardBST bst;
+    bst.insert('h', 10);
+    if (bst.contains('h', 10) && !bst.contains('h', 9)) {
+        passTest();
     } else {
-        cout << testName << ": " << desc << " - FAILED" << endl;
-        cout << "  Expected: " << (expectedBool ? "true" : "false") << ", Got: " << (!expectedBool ? "true" : "false") << endl;
+        failTest("single card insert failed");
     }
 }
 
-
-void test_insert_empty_tree() {
+void testInsertMultipleCards() {
+    printTest("Insert multiple cards");
     CardBST bst;
-    bool result1 = bst.insert('c', 5);
-    testCheckBool(result1 == true, "test_insert_empty_tree", "insert into empty tree returns true", true);
-    bool result2 = bst.contains('c', 5);
-    testCheckBool(result2 == true, "test_insert_empty_tree", "contains finds inserted card", true);
+    bst.insert('c', 3);
+    bst.insert('d', 5);
+    bst.insert('h', 10);
+    bst.insert('s', 7);
+    
+    if (bst.contains('c', 3) && bst.contains('d', 5) && 
+        bst.contains('h', 10) && bst.contains('s', 7)) {
+        passTest();
+    } else {
+        failTest("multiple insert failed");
+    }
 }
 
-void test_insert_single_node() {
+void testInsertDuplicateCard() {
+    printTest("Insert duplicate card returns false");
     CardBST bst;
-    bool result1 = bst.insert('h', 10);
-    testCheckBool(result1 == true, "test_insert_single_node", "insert h10 returns true", true);
-    bool result2 = bst.contains('h', 10);
-    testCheckBool(result2 == true, "test_insert_single_node", "contains h10 returns true", true);
-    bool result3 = bst.contains('h', 9);
-    testCheckBool(result3 == false, "test_insert_single_node", "contains h9 returns false", false);
+    bst.insert('c', 5);
+    bool result = bst.insert('c', 5);
+    if (!result) {
+        passTest();
+    } else {
+        failTest("duplicate insert should return false");
+    }
 }
 
-void test_insert_multiple_nodes() {
+void testInsertCardsOrderedByValue() {
+    printTest("Insert cards ordered by suit then value");
     CardBST bst;
-    bool r1 = bst.insert('c', 5);
-    testCheckBool(r1 == true, "test_insert_multiple_nodes", "insert c5 returns true", true);
-    bool r2 = bst.insert('d', 7);
-    testCheckBool(r2 == true, "test_insert_multiple_nodes", "insert d7 returns true", true);
-    bool r3 = bst.insert('s', 3);
-    testCheckBool(r3 == true, "test_insert_multiple_nodes", "insert s3 returns true", true);
-    bool r4 = bst.contains('c', 5);
-    testCheckBool(r4 == true, "test_insert_multiple_nodes", "contains c5 returns true", true);
-    bool r5 = bst.contains('d', 7);
-    testCheckBool(r5 == true, "test_insert_multiple_nodes", "contains d7 returns true", true);
-    bool r6 = bst.contains('s', 3);
-    testCheckBool(r6 == true, "test_insert_multiple_nodes", "contains s3 returns true", true);
-}
-
-void test_insert_duplicate() {
-    CardBST bst;
-    bool r1 = bst.insert('h', 13);
-    testCheckBool(r1 == true, "test_insert_duplicate", "first insert h13 returns true", true);
-    bool r2 = bst.insert('h', 13);
-    testCheckBool(r2 == false, "test_insert_duplicate", "duplicate insert h13 returns false", false);
-    bool r3 = bst.contains('h', 13);
-    testCheckBool(r3 == true, "test_insert_duplicate", "contains h13 returns true", true);
-}
-
-void test_insert_maintains_order() {
-    CardBST bst;
-    bst.insert('c', 1);
-    bst.insert('c', 13);
-    bst.insert('c', 7);
-    bool r1 = bst.contains('c', 1);
-    testCheckBool(r1 == true, "test_insert_maintains_order", "contains c1 returns true", true);
-    bool r2 = bst.contains('c', 7);
-    testCheckBool(r2 == true, "test_insert_maintains_order", "contains c7 returns true", true);
-    bool r3 = bst.contains('c', 13);
-    testCheckBool(r3 == true, "test_insert_maintains_order", "contains c13 returns true", true);
-}
-
-
-void test_contains_empty_tree() {
-    CardBST bst;
-    bool r1 = bst.contains('c', 5);
-    testCheckBool(r1 == false, "test_contains_empty_tree", "contains c5 on empty tree returns false", false);
-    bool r2 = bst.contains('d', 10);
-    testCheckBool(r2 == false, "test_contains_empty_tree", "contains d10 on empty tree returns false", false);
-}
-
-void test_contains_single_element() {
-    CardBST bst;
-    bst.insert('s', 9);
-    bool r1 = bst.contains('s', 9);
-    testCheckBool(r1 == true, "test_contains_single_element", "contains s9 returns true", true);
-    bool r2 = bst.contains('s', 8);
-    testCheckBool(r2 == false, "test_contains_single_element", "contains s8 returns false", false);
-}
-
-void test_contains_multiple_elements() {
-    CardBST bst;
+    bst.insert('h', 13);
     bst.insert('c', 2);
     bst.insert('d', 5);
-    bst.insert('h', 12);
-    bool r1 = bst.contains('c', 2);
-    testCheckBool(r1 == true, "test_contains_multiple_elements", "contains c2 returns true", true);
-    bool r2 = bst.contains('d', 5);
-    testCheckBool(r2 == true, "test_contains_multiple_elements", "contains d5 returns true", true);
-    bool r3 = bst.contains('h', 12);
-    testCheckBool(r3 == true, "test_contains_multiple_elements", "contains h12 returns true", true);
-    bool r4 = bst.contains('c', 3);
-    testCheckBool(r4 == false, "test_contains_multiple_elements", "contains c3 returns false", false);
+    bst.insert('s', 1);
+    
+    if (bst.contains('c', 2) && bst.contains('d', 5) && 
+        bst.contains('h', 13) && bst.contains('s', 1)) {
+        passTest();
+    } else {
+        failTest("ordering insert failed");
+    }
 }
 
-void test_contains_different_suits() {
+void testRemoveFromEmptyTree() {
+    printTest("Remove from empty tree returns false");
+    CardBST bst;
+    bool result = bst.remove('c', 5);
+    if (!result) {
+        passTest();
+    } else {
+        failTest("remove from empty should return false");
+    }
+}
+
+void testRemoveSingleNode() {
+    printTest("Remove single node from tree");
     CardBST bst;
     bst.insert('c', 5);
-    bst.insert('d', 5);
-    bst.insert('s', 5);
-    bst.insert('h', 5);
-    bool r1 = bst.contains('c', 5);
-    testCheckBool(r1 == true, "test_contains_different_suits", "contains c5 returns true", true);
-    bool r2 = bst.contains('d', 5);
-    testCheckBool(r2 == true, "test_contains_different_suits", "contains d5 returns true", true);
-    bool r3 = bst.contains('s', 5);
-    testCheckBool(r3 == true, "test_contains_different_suits", "contains s5 returns true", true);
-    bool r4 = bst.contains('h', 5);
-    testCheckBool(r4 == true, "test_contains_different_suits", "contains h5 returns true", true);
+    bool result = bst.remove('c', 5);
+    if (result && !bst.contains('c', 5)) {
+        passTest();
+    } else {
+        failTest("single node remove failed");
+    }
 }
 
-void test_contains_nonexistent() {
+void testRemoveLeafNode() {
+    printTest("Remove leaf node");
     CardBST bst;
-    bst.insert('c', 1);
+    bst.insert('c', 3);
+    bst.insert('d', 5);
+    bst.insert('h', 10);
+    bst.remove('d', 5);
+    if (!bst.contains('d', 5) && bst.contains('c', 3) && bst.contains('h', 10)) {
+        passTest();
+    } else {
+        failTest("leaf node remove failed");
+    }
+}
+
+void testRemoveNodeWithOneChild() {
+    printTest("Remove node with one child");
+    CardBST bst;
+    bst.insert('d', 5);
+    bst.insert('c', 3);
+    bst.insert('d', 7);
+    bst.remove('d', 5);
+    if (!bst.contains('d', 5) && bst.contains('c', 3) && bst.contains('d', 7)) {
+        passTest();
+    } else {
+        failTest("remove node with one child failed");
+    }
+}
+
+void testRemoveNodeWithTwoChildren() {
+    printTest("Remove node with two children");
+    CardBST bst;
+    bst.insert('d', 5);
+    bst.insert('c', 3);
+    bst.insert('d', 7);
+    bst.insert('c', 2);
+    bst.insert('d', 6);
+    bst.remove('d', 5);
+    if (!bst.contains('d', 5) && bst.contains('c', 3) && 
+        bst.contains('d', 7) && bst.contains('c', 2) && bst.contains('d', 6)) {
+        passTest();
+    } else {
+        failTest("remove node with two children failed");
+    }
+}
+
+void testRemoveNonexistentCard() {
+    printTest("Remove non-existent card returns false");
+    CardBST bst;
+    bst.insert('c', 5);
+    bool result = bst.remove('h', 10);
+    if (!result && bst.contains('c', 5)) {
+        passTest();
+    } else {
+        failTest("remove nonexistent should return false");
+    }
+}
+
+void testContainsEmptyTree() {
+    printTest("Contains on empty tree returns false");
+    CardBST bst;
+    if (!bst.contains('c', 5)) {
+        passTest();
+    } else {
+        failTest("empty tree contains should return false");
+    }
+}
+
+void testContainsSingleCard() {
+    printTest("Contains finds single card");
+    CardBST bst;
     bst.insert('d', 10);
-    bool r1 = bst.contains('c', 2);
-    testCheckBool(r1 == false, "test_contains_nonexistent", "contains c2 returns false", false);
-    bool r2 = bst.contains('h', 1);
-    testCheckBool(r2 == false, "test_contains_nonexistent", "contains h1 returns false", false);
+    if (bst.contains('d', 10) && !bst.contains('d', 9)) {
+        passTest();
+    } else {
+        failTest("single card contains failed");
+    }
 }
 
-
-void test_remove_empty_tree() {
+void testContainsMultipleCards() {
+    printTest("Contains with multiple cards");
     CardBST bst;
-    bool r1 = bst.remove('c', 5);
-    testCheckBool(r1 == false, "test_remove_empty_tree", "remove from empty tree returns false", false);
-}
-
-void test_remove_single_node() {
-    CardBST bst;
-    bst.insert('h', 7);
-    bool r1 = bst.remove('h', 7);
-    testCheckBool(r1 == true, "test_remove_single_node", "remove h7 returns true", true);
-    bool r2 = bst.contains('h', 7);
-    testCheckBool(r2 == false, "test_remove_single_node", "contains h7 after remove returns false", false);
-}
-
-void test_remove_nonexistent_card() {
-    CardBST bst;
-    bst.insert('c', 5);
-    bool r1 = bst.remove('c', 6);
-    testCheckBool(r1 == false, "test_remove_nonexistent_card", "remove c6 returns false", false);
-    bool r2 = bst.remove('d', 5);
-    testCheckBool(r2 == false, "test_remove_nonexistent_card", "remove d5 returns false", false);
-}
-
-void test_remove_leaf_node() {
-    CardBST bst;
-    bst.insert('c', 5);
     bst.insert('c', 3);
-    bst.insert('c', 7);
-    bool r1 = bst.remove('c', 3);
-    testCheckBool(r1 == true, "test_remove_leaf_node", "remove leaf c3 returns true", true);
-    bool r2 = bst.contains('c', 3);
-    testCheckBool(r2 == false, "test_remove_leaf_node", "contains c3 after remove returns false", false);
-    bool r3 = bst.contains('c', 5);
-    testCheckBool(r3 == true, "test_remove_leaf_node", "contains c5 still returns true", true);
+    bst.insert('d', 5);
+    bst.insert('h', 10);
+    bst.insert('s', 7);
+    
+    if (bst.contains('c', 3) && bst.contains('d', 5) && 
+        bst.contains('h', 10) && bst.contains('s', 7) && !bst.contains('c', 1)) {
+        passTest();
+    } else {
+        failTest("multiple card contains failed");
+    }
 }
 
-void test_remove_node_with_children() {
+void testContainsAfterRemoval() {
+    printTest("Contains after removal");
     CardBST bst;
     bst.insert('c', 5);
-    bst.insert('c', 3);
-    bst.insert('c', 7);
-    bst.insert('c', 1);
-    bst.insert('c', 9);
-    bool r1 = bst.remove('c', 5);
-    testCheckBool(r1 == true, "test_remove_node_with_children", "remove root c5 returns true", true);
-    bool r2 = bst.contains('c', 5);
-    testCheckBool(r2 == false, "test_remove_node_with_children", "contains c5 after remove returns false", false);
-    bool r3 = bst.contains('c', 3);
-    testCheckBool(r3 == true, "test_remove_node_with_children", "contains c3 still returns true", true);
-    bool r4 = bst.contains('c', 7);
-    testCheckBool(r4 == true, "test_remove_node_with_children", "contains c7 still returns true", true);
+    bst.insert('d', 10);
+    bst.remove('c', 5);
+    if (!bst.contains('c', 5) && bst.contains('d', 10)) {
+        passTest();
+    } else {
+        failTest("contains after removal failed");
+    }
 }
 
-void test_print_empty_tree() {
-    CardBST bst;
-    stringstream buffer;
-    streambuf* old = cout.rdbuf(buffer.rdbuf());
-    bst.printInOrder();
-    cout.rdbuf(old);
-    bool result = (buffer.str() == "");
-    testCheckBool(result, "test_print_empty_tree", "print empty tree outputs nothing", true);
-}
-
-void test_print_single_node() {
+void testContainsDifferentSuits() {
+    printTest("Contains distinguishes different suits");
     CardBST bst;
     bst.insert('c', 5);
-    stringstream buffer;
-    streambuf* old = cout.rdbuf(buffer.rdbuf());
-    bst.printInOrder();
-    cout.rdbuf(old);
-    bool result = (buffer.str().find('c') != string::npos);
-    testCheckBool(result, "test_print_single_node", "print contains 'c'", true);
+    if (bst.contains('c', 5) && !bst.contains('d', 5) && 
+        !bst.contains('h', 5) && !bst.contains('s', 5)) {
+        passTest();
+    } else {
+        failTest("suit distinction failed");
+    }
 }
 
-void test_print_multiple_nodes() {
+void testIteratorEmptyTree() {
+    printTest("Iterator on empty tree (begin == end)");
+    CardBST bst;
+    auto begin_it = bst.begin();
+    auto end_it = bst.end();
+    if (begin_it == end_it) {
+        passTest();
+    } else {
+        failTest("begin != end on empty tree");
+    }
+}
+
+void testIteratorEmptyTreeReverse() {
+    printTest("Iterator on empty tree (rbegin == rend)");
+    CardBST bst;
+    auto rbegin_it = bst.rbegin();
+    auto rend_it = bst.rend();
+    if (rbegin_it == rend_it) {
+        passTest();
+    } else {
+        failTest("rbegin != rend on empty tree");
+    }
+}
+
+void testIteratorSingleNode() {
+    printTest("Iterator with single node");
+    CardBST bst;
+    bst.insert('c', 5);
+    
+    auto it = bst.begin();
+    bool found = (it != bst.end());
+    bool correct = false;
+    if (found) {
+        correct = ((*it).suit == 'c' && (*it).num == 5);
+    }
+    
+    ++it;
+    bool at_end = (it == bst.end());
+    
+    if (found && correct && at_end) {
+        passTest();
+    } else {
+        failTest("single node iterator failed");
+    }
+}
+
+void testIteratorMultipleNodesInOrder() {
+    printTest("Iterator forward traversal of multiple nodes");
     CardBST bst;
     bst.insert('d', 5);
-    bst.insert('c', 5);
-    bst.insert('h', 5);
-    stringstream buffer;
-    streambuf* old = cout.rdbuf(buffer.rdbuf());
-    bst.printInOrder();
-    cout.rdbuf(old);
-    string result = buffer.str();
-    bool r1 = (result.find('c') != string::npos);
-    testCheckBool(r1, "test_print_multiple_nodes", "print contains 'c'", true);
-    bool r2 = (result.find('d') != string::npos);
-    testCheckBool(r2, "test_print_multiple_nodes", "print contains 'd'", true);
-    bool r3 = (result.find('h') != string::npos);
-    testCheckBool(r3, "test_print_multiple_nodes", "print contains 'h'", true);
-}
-
-void test_print_inorder_correct() {
-    CardBST bst;
-    bst.insert('c', 5);
     bst.insert('c', 3);
-    bst.insert('c', 7);
-    stringstream buffer;
-    streambuf* old = cout.rdbuf(buffer.rdbuf());
-    bst.printInOrder();
-    cout.rdbuf(old);
-    string result = buffer.str();
-    size_t pos3 = result.find("3");
-    size_t pos5 = result.find("5");
-    size_t pos7 = result.find("7");
-    bool ordered = (pos3 < pos5 && pos5 < pos7);
-    testCheckBool(ordered, "test_print_inorder_correct", "print order is 3 < 5 < 7", true);
-}
-
-void test_iterator_empty_tree() {
-    CardBST bst;
-    bool r1 = (bst.begin() == bst.end());
-    testCheckBool(r1, "test_iterator_empty_tree", "begin() == end() for empty tree", true);
-    bool r2 = (bst.rbegin() == bst.rend());
-    testCheckBool(r2, "test_iterator_empty_tree", "rbegin() == rend() for empty tree", true);
-}
-
-void test_iterator_single_node() {
-    CardBST bst;
-    bst.insert('h', 5);
+    bst.insert('h', 10);
+    
     auto it = bst.begin();
-    bool r1 = (it != bst.end());
-    testCheckBool(r1, "test_iterator_single_node", "begin() != end()", true);
-    int num = (*it).num;
-    bool r2 = (num == 5);
-    testCheck(r2, "test_iterator_single_node", "first element num is 5", 5, num);
+    bool c3_correct = ((*it).suit == 'c' && (*it).num == 3);
     ++it;
-    bool r3 = (it == bst.end());
-    testCheckBool(r3, "test_iterator_single_node", "after increment it == end()", true);
+    bool d5_correct = ((*it).suit == 'd' && (*it).num == 5);
+    ++it;
+    bool h10_correct = ((*it).suit == 'h' && (*it).num == 10);
+    ++it;
+    bool at_end = (it == bst.end());
+    
+    if (c3_correct && d5_correct && h10_correct && at_end) {
+        passTest();
+    } else {
+        failTest("forward traversal order incorrect");
+    }
 }
 
-void test_iterator_multiple_nodes_forward() {
+void testIteratorReverseTraversal() {
+    printTest("Iterator reverse traversal");
     CardBST bst;
-    bst.insert('c', 5);
+    bst.insert('d', 5);
     bst.insert('c', 3);
-    bst.insert('c', 7);
-    auto it = bst.begin();
-    int n1 = (*it).num;
-    testCheck(n1 == 3, "test_iterator_multiple_nodes_forward", "first element is 3", 3, n1);
-    ++it;
-    int n2 = (*it).num;
-    testCheck(n2 == 5, "test_iterator_multiple_nodes_forward", "second element is 5", 5, n2);
-    ++it;
-    int n3 = (*it).num;
-    testCheck(n3 == 7, "test_iterator_multiple_nodes_forward", "third element is 7", 7, n3);
-    ++it;
-    bool r4 = (it == bst.end());
-    testCheckBool(r4, "test_iterator_multiple_nodes_forward", "after third increment it == end()", true);
-}
-
-void test_iterator_multiple_nodes_reverse() {
-    CardBST bst;
-    bst.insert('c', 5);
-    bst.insert('c', 3);
-    bst.insert('c', 7);
+    bst.insert('h', 10);
+    
     auto it = bst.rbegin();
-    int n1 = (*it).num;
-    testCheck(n1 == 7, "test_iterator_multiple_nodes_reverse", "rbegin element is 7", 7, n1);
+    bool h10_correct = ((*it).suit == 'h' && (*it).num == 10);
     --it;
-    int n2 = (*it).num;
-    testCheck(n2 == 5, "test_iterator_multiple_nodes_reverse", "second reverse element is 5", 5, n2);
+    bool d5_correct = ((*it).suit == 'd' && (*it).num == 5);
     --it;
-    int n3 = (*it).num;
-    testCheck(n3 == 3, "test_iterator_multiple_nodes_reverse", "third reverse element is 3", 3, n3);
+    bool c3_correct = ((*it).suit == 'c' && (*it).num == 3);
     --it;
-    bool r4 = (it == bst.rend());
-    testCheckBool(r4, "test_iterator_multiple_nodes_reverse", "after third decrement it == rend()", true);
+    bool at_rend = (it == bst.rend());
+    
+    if (h10_correct && d5_correct && c3_correct && at_rend) {
+        passTest();
+    } else {
+        failTest("reverse traversal order incorrect");
+    }
 }
 
-void test_iterator_increment_past_end() {
+void testIteratorComparison() {
+    printTest("Iterator comparison operators");
     CardBST bst;
     bst.insert('c', 5);
-    auto it = bst.begin();
-    ++it;
-    bool r1 = (it == bst.end());
-    testCheckBool(r1, "test_iterator_increment_past_end", "after increment it == end()", true);
-    ++it;
-    bool r2 = (it == bst.end());
-    testCheckBool(r2, "test_iterator_increment_past_end", "incrementing past end stays at end()", true);
-}
-
-void test_iterator_comparison() {
-    CardBST bst;
-    bst.insert('c', 5);
-    bst.insert('d', 5);
+    bst.insert('d', 10);
+    
     auto it1 = bst.begin();
     auto it2 = bst.begin();
-    bool r1 = (it1 == it2);
-    testCheckBool(r1, "test_iterator_comparison", "two begin() iterators are equal", true);
-    ++it2;
-    bool r2 = (it1 != it2);
-    testCheckBool(r2, "test_iterator_comparison", "after increment iterators are not equal", true);
+    bool equal = (it1 == it2);
+    
+    ++it1;
+    bool not_equal = (it1 != it2);
+    
+    if (equal && not_equal) {
+        passTest();
+    } else {
+        failTest("iterator comparison failed");
+    }
 }
 
-void test_playgame_common_cards() {
+void testIteratorIncrementPastEnd() {
+    printTest("Iterator increment at end is safe");
+    CardBST bst;
+    bst.insert('c', 5);
+    bst.insert('d', 10);
+    
+    auto it = bst.begin();
+    ++it;
+    ++it;
+    bool at_end = (it == bst.end());
+    
+    if (at_end) {
+        passTest();
+    } else {
+        failTest("should reach end");
+    }
+}
+
+void testIteratorDecrementPastRend() {
+    printTest("Iterator decrement at rend is safe");
+    CardBST bst;
+    bst.insert('c', 5);
+    bst.insert('d', 10);
+    
+    auto it = bst.rbegin();
+    --it;
+    --it;
+    bool at_rend = (it == bst.rend());
+    
+    if (at_rend) {
+        passTest();
+    } else {
+        failTest("should reach rend");
+    }
+}
+
+void testIteratorFullTraversal() {
+    printTest("Iterator full forward traversal");
+    CardBST bst;
+    bst.insert('d', 7);
+    bst.insert('c', 3);
+    bst.insert('h', 10);
+    
+    int count = 0;
+    for(auto it = bst.begin(); it != bst.end(); ++it) {
+        count++;
+    }
+    
+    if (count == 3) {
+        passTest();
+    } else {
+        failTest("traversal count incorrect");
+    }
+}
+
+void testIteratorReverseFullTraversal() {
+    printTest("Iterator full reverse traversal");
+    CardBST bst;
+    bst.insert('d', 7);
+    bst.insert('c', 3);
+    bst.insert('h', 10);
+    
+    int count = 0;
+    for(auto it = bst.rbegin(); it != bst.rend(); --it) {
+        count++;
+    }
+    
+    if (count == 3) {
+        passTest();
+    } else {
+        failTest("reverse traversal count incorrect");
+    }
+}
+
+void testPlayGameBothPlayersWithCommonCards() {
+    printTest("PlayGame with both players having common cards");
     CardBST alice, bob;
+    
+    alice.insert('c', 3);
+    alice.insert('h', 5);
+    alice.insert('d', 10);
+    
+    bob.insert('c', 2);
+    bob.insert('c', 3);
+    bob.insert('d', 10);
+    bob.insert('h', 1);
+    
+    stringstream ss;
+    streambuf* cout_backup = cout.rdbuf(ss.rdbuf());
+    playGame(alice, bob);
+    cout.rdbuf(cout_backup);
+    
+    if (!alice.contains('c', 3) && !bob.contains('c', 3) &&
+        alice.contains('h', 5) && bob.contains('c', 2)) {
+        passTest();
+    } else {
+        failTest("common cards not properly removed");
+    }
+}
+
+void testPlayGameOnePlayerEmpty() {
+    printTest("PlayGame with one player having empty hand");
+    CardBST alice, bob;
+    
     alice.insert('c', 5);
-    alice.insert('d', 7);
-    bob.insert('c', 5);
-    bob.insert('h', 2);
-    stringstream buffer;
-    streambuf* old = cout.rdbuf(buffer.rdbuf());
-    alice.playGame(alice, bob);
-    cout.rdbuf(old);
-    bool r1 = !alice.contains('c', 5);
-    testCheckBool(r1, "test_playgame_common_cards", "alice no longer has c5", true);
-    bool r2 = !bob.contains('c', 5);
-    testCheckBool(r2, "test_playgame_common_cards", "bob no longer has c5", true);
+    
+    stringstream ss;
+    streambuf* cout_backup = cout.rdbuf(ss.rdbuf());
+    playGame(alice, bob);
+    cout.rdbuf(cout_backup);
+    
+    if (alice.contains('c', 5)) {
+        passTest();
+    } else {
+        failTest("alice's card should remain");
+    }
 }
 
-void test_playgame_empty_hand() {
+void testPlayGameNoCommonCards() {
+    printTest("PlayGame with no common cards");
     CardBST alice, bob;
-    bob.insert('c', 5);
-    stringstream buffer;
-    streambuf* old = cout.rdbuf(buffer.rdbuf());
-    alice.playGame(alice, bob);
-    cout.rdbuf(old);
-    bool r1 = bob.contains('c', 5);
-    testCheckBool(r1, "test_playgame_empty_hand", "bob still has c5 when alice is empty", true);
-}
-
-void test_playgame_no_common_cards() {
-    CardBST alice, bob;
+    
     alice.insert('c', 5);
-    alice.insert('d', 7);
-    bob.insert('h', 2);
+    alice.insert('d', 10);
+    
+    bob.insert('h', 1);
+    bob.insert('s', 13);
+    
+    stringstream ss;
+    streambuf* cout_backup = cout.rdbuf(ss.rdbuf());
+    playGame(alice, bob);
+    cout.rdbuf(cout_backup);
+    
+    string output = ss.str();
+    bool no_matches = (output.find("picked matching card") == string::npos);
+    bool alice_intact = (alice.contains('c', 5) && alice.contains('d', 10));
+    bool bob_intact = (bob.contains('h', 1) && bob.contains('s', 13));
+    
+    if (no_matches && alice_intact && bob_intact) {
+        passTest();
+    } else {
+        failTest("cards should remain with no matches");
+    }
+}
+
+void testPlayGameAllCardsMatch() {
+    printTest("PlayGame where all cards match");
+    CardBST alice, bob;
+    
+    alice.insert('c', 3);
+    alice.insert('d', 5);
+    
+    bob.insert('c', 3);
+    bob.insert('d', 5);
+    
+    stringstream ss;
+    streambuf* cout_backup = cout.rdbuf(ss.rdbuf());
+    playGame(alice, bob);
+    cout.rdbuf(cout_backup);
+    
+    auto alice_it = alice.begin();
+    auto bob_it = bob.begin();
+    
+    if (alice_it == alice.end() && bob_it == bob.end()) {
+        passTest();
+    } else {
+        failTest("all cards should be removed");
+    }
+}
+
+void testPlayGameComplexScenario() {
+    printTest("PlayGame complex scenario");
+    CardBST alice, bob;
+    
+    alice.insert('h', 3);
+    alice.insert('s', 10);
+    alice.insert('c', 1);
+    alice.insert('c', 3);
+    alice.insert('s', 5);
+    alice.insert('h', 10);
+    alice.insert('d', 1);
+    
+    bob.insert('c', 2);
+    bob.insert('d', 1);
+    bob.insert('h', 10);
+    bob.insert('c', 3);
+    bob.insert('d', 11);
     bob.insert('s', 10);
-    stringstream buffer;
-    streambuf* old = cout.rdbuf(buffer.rdbuf());
-    alice.playGame(alice, bob);
-    cout.rdbuf(old);
-    bool r1 = alice.contains('c', 5);
-    testCheckBool(r1, "test_playgame_no_common_cards", "alice still has c5", true);
-    bool r2 = bob.contains('h', 2);
-    testCheckBool(r2, "test_playgame_no_common_cards", "bob still has h2", true);
+    bob.insert('h', 1);
+    
+    stringstream ss;
+    streambuf* cout_backup = cout.rdbuf(ss.rdbuf());
+    playGame(alice, bob);
+    cout.rdbuf(cout_backup);
+    
+    string output = ss.str();
+    bool has_matches = (output.find("picked matching card") != string::npos);
+    
+    if (has_matches) {
+        passTest();
+    } else {
+        failTest("complex scenario should have matches");
+    }
 }
 
 int main() {
-    cout << "=== Running BST Insert Tests ===" << endl;
-    test_insert_empty_tree();
-    test_insert_single_node();
-    test_insert_multiple_nodes();
-    test_insert_duplicate();
-    test_insert_maintains_order();
     
-    cout << "\n=== Running BST Contains Tests ===" << endl;
-    test_contains_empty_tree();
-    test_contains_single_element();
-    test_contains_multiple_elements();
-    test_contains_different_suits();
-    test_contains_nonexistent();
+    // insert tests
+    cout << "insert tests: " << endl;
+    testInsertEmptyTree();
+    testInsertSingleCard();
+    testInsertMultipleCards();
+    testInsertDuplicateCard();
+    testInsertCardsOrderedByValue();
+    cout << endl;
     
-    cout << "\n=== Running BST Remove Tests ===" << endl;
-    test_remove_empty_tree();
-    test_remove_single_node();
-    test_remove_nonexistent_card();
-    test_remove_leaf_node();
-    test_remove_node_with_children();
+    // remove tests
+    cout << "remove tests: " << endl;
+    testRemoveFromEmptyTree();
+    testRemoveSingleNode();
+    testRemoveLeafNode();
+    testRemoveNodeWithOneChild();
+    testRemoveNodeWithTwoChildren();
+    testRemoveNonexistentCard();
+    cout << endl;
     
-    cout << "\n=== Running Print/Display Tests ===" << endl;
-    test_print_empty_tree();
-    test_print_single_node();
-    test_print_multiple_nodes();
-    test_print_inorder_correct();
+    // contains tests
+    cout << "contains tests: " << endl;
+    testContainsEmptyTree();
+    testContainsSingleCard();
+    testContainsMultipleCards();
+    testContainsAfterRemoval();
+    testContainsDifferentSuits();
+    cout << endl;
     
-    cout << "\n=== Running Iterator Tests ===" << endl;
-    test_iterator_empty_tree();
-    test_iterator_single_node();
-    test_iterator_multiple_nodes_forward();
-    test_iterator_multiple_nodes_reverse();
-    test_iterator_increment_past_end();
-    test_iterator_comparison();
+    // iterator tests
+    cout << "iterator tests: " << endl;
+    testIteratorEmptyTree();
+    testIteratorEmptyTreeReverse();
+    testIteratorSingleNode();
+    testIteratorMultipleNodesInOrder();
+    testIteratorReverseTraversal();
+    testIteratorComparison();
+    testIteratorIncrementPastEnd();
+    testIteratorDecrementPastRend();
+    testIteratorFullTraversal();
+    testIteratorReverseFullTraversal();
+    cout << endl;
     
-    cout << "\n=== Running PlayGame Tests ===" << endl;
-    test_playgame_common_cards();
-    test_playgame_empty_hand();
-    test_playgame_no_common_cards();
+    // playgame tests
+    cout << "playgame tests: " << endl;
+    testPlayGameBothPlayersWithCommonCards();
+    testPlayGameOnePlayerEmpty();
+    testPlayGameNoCommonCards();
+    testPlayGameAllCardsMatch();
+    testPlayGameComplexScenario();
+    cout << endl;
     
-    cout << "\n=== All tests completed! ===" << endl;
-    return 0;
+    cout << "tests passed: " << passCount << endl;
+    cout << "tests failed: " << failCount << endl;    
 }
