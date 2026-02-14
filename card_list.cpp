@@ -285,7 +285,7 @@ void playGame(CardBST& alice, CardBST& bob) {
             if(itAlice != alice.end()) {
                 auto cardAlice = *itAlice;
                 if(bob.contains(cardAlice.suit, cardAlice.num)) {
-                    cout << "Alice picked matching card " << cardAlice;
+                    cout << "Alice picked matching card " << cardAlice << endl;
                     bob.remove(cardAlice.suit, cardAlice.num);
                     alice.remove(cardAlice.suit, cardAlice.num);
                     itAlice = alice.begin();
@@ -295,22 +295,23 @@ void playGame(CardBST& alice, CardBST& bob) {
             }
             else game = false;
         }
-        else {
+        if(!aliceTurn) {
             if(itBob != bob.rend()) {
                 auto cardBob = *itBob;
                 if(alice.contains(cardBob.suit, cardBob.num)) {
-                    cout << "Bob picked matching card " << cardBob;
+                    cout << "Bob picked matching card " << cardBob << endl;
                     alice.remove(cardBob.suit, cardBob.num);
                     bob.remove(cardBob.suit, cardBob.num);
                     itBob = bob.rbegin();
                     aliceTurn = true;
                 }
-                else ++itBob;
+                else --itBob;
             }
             else game = false;
         }
     }
 
+    cout << endl;
     cout << "Alice's cards: " << endl;
     for(auto it = alice.begin(); it != alice.end(); ++it) {
         cout << *it;

@@ -35,7 +35,6 @@ class CardBST {
         bool remove(char s, int n);
         bool contains(char s, int n) const;
         void printInOrder();
-        void playGame(CardBST& alice, CardBST& bob);
         friend ostream& operator<<(ostream& out, const CardBST::Card& obj);
 
         class iterator {
@@ -59,5 +58,8 @@ class CardBST {
         iterator end();
         iterator rend();
 };
+
+void playGame(CardBST& alice, CardBST& bob);
+
 
 #endif

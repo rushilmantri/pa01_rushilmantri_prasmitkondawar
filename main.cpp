@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int getNum(string& s) { 
+int getNum(const string& s) { 
   if(!isdigit(s[1])) {
     switch(s[1]) {
       case 'a': return 1;
@@ -17,8 +17,7 @@ int getNum(string& s) {
     }
   }
 
-  s.erase(0, 1);
-  return stoi(s);
+  return stoi(s.substr(1));
 }
 
 int main(int argv, char** argc) {
@@ -50,6 +49,8 @@ int main(int argv, char** argc) {
     player2.insert(line[0], getNum(line));
   }
   cardFile2.close();
+
+  playGame(player1, player2);
   
   return 0;
 }
