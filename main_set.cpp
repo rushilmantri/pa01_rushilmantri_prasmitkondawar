@@ -66,11 +66,12 @@ void game(set<card>& player1, set<card>& player2) {
 
   it1 = player1.begin();
   auto it3 = player2.begin();
-
+  cout << endl;
   cout << "Alice's cards: " << endl;
-  while(it1 != player1.end()) { cout << *it1; it1++; }
+  while(it1 != player1.end()) { cout << *it1 << endl; it1++; }
+  cout << endl;
   cout << "Bob's cards: " << endl;
-  while(it3 != player2.end()) { cout << *it3; it3++; }
+  while(it3 != player2.end()) { cout << *it3 << endl; it3++; }
 }
 
 int main(int argv, char** argc) {

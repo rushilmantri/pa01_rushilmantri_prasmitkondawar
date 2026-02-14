@@ -34,6 +34,6 @@ ostream& operator<<(ostream& out, const card& obj) {
         default: x = to_string(obj.num);
     }
 
-    out << obj.suit << " " << x << endl;
+    out << obj.suit << " " << x;
     return out;
 }

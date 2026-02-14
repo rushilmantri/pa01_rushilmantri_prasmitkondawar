@@ -38,7 +38,7 @@ ostream& operator<<(ostream& out, const CardBST::Card& obj) {
         default: x = to_string(obj.num);
     }
 
-    out << obj.suit << " " << x << endl;
+    out << obj.suit << " " << x;
     return out;
 }
 
@@ -314,11 +314,11 @@ void playGame(CardBST& alice, CardBST& bob) {
     cout << endl;
     cout << "Alice's cards: " << endl;
     for(auto it = alice.begin(); it != alice.end(); ++it) {
-        cout << *it;
+        cout << *it << endl;
     }
-
+    cout << endl;
     cout << "Bob's cards: " << endl;
     for(auto it = bob.begin(); it != bob.end(); ++it) {
-        cout << *it;
+        cout << *it << endl;
     }
 }
